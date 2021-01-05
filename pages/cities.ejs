@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Page Title</title>
+</head>
+
+<body style="margin: 1rem;">
+    <script>
+        function onSubmit(e) {
+            e.preventDefault()
+            $.post("/cities", $("#input-form").serialize()).done(function (data) {
+                $("#good-alert").fadeIn()
+            }).fail(function (xhr, status, err) {
+                $("#bad-alert").text(xhr.responseText || `An error occured (${xhr.status})`)
+                $("#bad-alert").fadeIn()
+            })
+            return false
+        }
+        function onEdit() {
+            $.post("/cities/update", $("#edit-form").serialize()).done(function (data) {
+                location.reload(true);
+            }).fail(function (xhr, status, err) {
+                $("#bad-alert").text(xhr.responseText || `An error occured (${xhr.status})`)
+                $("#bad-alert").fadeIn()
+            })
+        }
+    </script>
+
+   
+
+        <a href="/">Go Back</a>
+        <div>
+            <div>
+                <h2>All cities listed</h2>
+                <table class="table table-bordered table-striped table-hover" id="result-table">
+                    <thead>
+                        <tr>
+                            <th>City Code</th>
+                            <th>Name</th>
+                            <th>Population</th>
+                            <th>Area</th>
+                        </tr>
+                    </thead>
+                    <% data.forEach(city=> { %>
+                        <tr id=<%=city.cty_code %> >
+                            <td>
+                                <%= city.cty_code %>
+                            </td>
+                            <td>
+                                <%= city.cty_name %>
+                                    <%if (city.isCoastal=='true' ) { %>
+                                        <span class="badge bg-secondary">Coastal</span>
+                                        <% } %>
+                            </td>
+                            <td>
+                                <%= city.population %>
+                            </td>
+                            <td>
+                                <%= city.areaKM %>
+                            </td>
+                            <td>
+                                <div>
+                                    <a class="btn btn-info text-white mb-1" href="#edit-form"
+                                        onclick="$('#edit-city-countrycode').val('<%= city.co_code %>'); $('#edit-city-code').val('<%= city.cty_code %>'); $('#edit-city-name').val('<%= city.cty_name %>'); $('#edit-city-population').val('<%= city.population %>');">Edit</a>
+                                    <button class="btn btn-danger"
+                                        onclick="onRemove(`<%= city.cty_code %>`);">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <% }) %>
+                </table>
+            </div>
+            <div class="col">
+                <div>
+                    <h2>Add a city</h2>
+                    <form id="input-form" action="/cities" method="post" onsubmit="onSubmit(this); return false">
+                        <div class="mb-2 input-group">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text">Country Code</label>
+                            </div>
+                            <select required id="input-city-countrycode" name="countrycode" class="custom-select">
+                                <% countries.forEach(country=> { %>
+                                    <option value="<%= country.co_code %>">
+                                        <%= country.co_name %>
+                                    </option>
+                                    <% }) %>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">City Code</label>
+                            <input required type="text" id="input-city-code" name="code" class="form-control">
+                        </div>
+                        <div>
+                            <label>City Name</label>
+                            <input required type="text" id="input-city-name" name="name" class="form-control">
+                        </div>
+                        <div>
+                            <label>Population</label>
+                            <input required type="number" id="input-city-population" name="population"
+                                class="form-control"></input>
+                        </div>
+
+                        <div>
+                            <label>Area</label>
+                            <input required type="number" id="input-city-area" name="area"
+                                class="form-control"></input>
+                        </div>
+
+                        <div>
+                            <input type="checkbox" class="form-check-input" id="input-city-area" name="coastal" />
+                            <label class="form-check-label" for="input-city-area">Beside coast</label>
+                        </div>
+                        <button name="submit" class="btn btn-success" type="submit">Submit</button>
+                        </form>
+                </div>
+                <div>
+                    <h2>Edit a city</h2>
+                    <form id="edit-form" action="/countries" method="post" onsubmit="onEdit(this); return false">
+                        <div>
+                            <label class="form-label">Country Code</label>
+                            <input readonly type="text" id="edit-city-countrycode" name="countrycode" class="form-control">
+                        </div>
+                        <div >
+                            <label class="form-label">City Code</label>
+                            <input required type="text" id="edit-city-code" name="code" class="form-control">
+                        </div>
+                        <div>
+                            <label>City Name</label>
+                            <input required type="text" id="edit-city-name" name="name" class="form-control">
+                        </div>
+                        <div>
+                            <label>Population</label>
+                            <input required type="number" id="edit-city-population" name="population"
+                                class="form-control"></input>
+                        </div>
+                        <div>
+                            <label>Area</label>
+                            <input required type="number" id="edit-city-area" name="area"
+                                class="form-control"></input>
+                        </div>
+                        <div>
+                            <input type="checkbox" class="form-check-input" id="edit-city-area" name="coastal" />
+                            <label class="form-check-label" for="edit-city-area">Beside coast</label>
+                        </div>
+                        <button name="submit" type="submit" class="btn btn-success">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

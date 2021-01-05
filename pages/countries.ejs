@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <title>Page Title</title>   
+</head>
+
+<body style="margin: 1rem;">
+    <script>
+        function onSubmit() {
+            $.post("/countries", $("#input-form").serialize()).done(function (data) {
+                $("#good-alert").fadeIn()
+                $("#result-table").append(`<tr>
+                    <td>${code}</td>
+                    <td>${name}</td>
+                    <td>${details}</td>
+                </tr>`)
+            }).fail(function (xhr, status, err) {
+                $("#bad-alert").text(xhr.responseText || `An error occured (${xhr.status})`)
+                $("#bad-alert").fadeIn()
+            })
+        }
+        function onRemove(code) {
+            $.ajax({
+                url: "/countries",
+                type: "DELETE",
+                data: { code: code },
+                success: (result) => {
+                    $(`#${code}`).remove();
+                },
+                error: (err) => {
+                    console.log(err);
+                }
+            })
+        }
+        function onEdit() {
+            var code = $("#edit-country-code").val()
+            var name = $("#edit-country-name").val()
+            var details = $("#edit-country-details").val()
+            $.post("/countries/update", $("#edit-form").serialize()).done(function (data) {
+                $("#good-alert").fadeIn()
+                location.reload(true);
+            }).fail(function (xhr, status, err) {
+                $("#bad-alert").text(xhr.responseText || `An error occured (${xhr.status})`)
+                $("#bad-alert").fadeIn()
+            })
+        }
+    </script>
+    
+        <a href="/">Go Back</a>
+        <div>
+            <div>
+                <h2>All countries listed</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <% data.forEach(city=> { %>
+                        <tr id=<%=city.co_code %> >
+                            <td>
+                                <%= city.co_code %>
+                            </td>
+                            <td>
+                                <%= city.co_name %>
+                            </td>
+                            <td>
+                                <%= city.co_details %>
+                            </td>
+                            <td>
+                                <div>
+                                    <a  href="#edit-form"
+                                        onclick="$('#edit-country-code').val('<%= city.co_code %>'); $('#edit-country-name').val('<%= city.co_name %>'); $('#edit-country-details').val('<%= city.co_details %>');">Edit</a>
+                                    <button class="btn btn-danger"
+                                        onclick="onRemove(`<%= city.co_code %>`);">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                </table>
+            </di>
+
+            <div>
+                    <h2>Add a country</h2>
+                    <form id="input-form" action="/countries" method="post" onsubmit="return false">
+                        <div>
+                            <label class="form-label">Country Code</label>
+                            <input type="text" id="input-country-code" name="code" class="form-control">
+                        </div>
+                        <div>
+                            <label>Country Name</label>
+                            <input type="text" id="input-country-name" name="name" class="form-control">
+                        </div>
+                        <div>
+                            <label>Details</label>
+                            <textarea id="input-country-details" name="details" class="form-control"></textarea>
+                        </div>
+                        <button name="submit" class="btn btn-success" type="submit" onsubmit="onSubmit()">Submit</button>
+                    </form>
+                </div>
+                <div>
+                    <h2>Edit a country</h2>
+                    <form id="edit-form" action="/countries" method="post" onsubmit="return false">
+                        <div>
+                            <label class="form-label">Country Code</label>
+                            <input type="text" id="edit-country-code" readonly name="code" class="form-control">
+                        </div>
+                        <div>
+                            <label>New Country Name</label>
+                            <input type="text" id="edit-country-name" name="name" class="form-control">
+                        </div>
+                        <div>
+                            <label>New Details</label>
+                            <textarea id="edit-country-details" name="details" class="form-control"></textarea>
+                        </div>
+                        <button name="submit" class="btn btn-success" type="submit" onsubmit="onEdit()">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

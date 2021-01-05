@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heads of State</title>
+</head>
+
+<body style="margin: 1rem;">
+    <script>
+        function onSubmit() {
+            $.post("/heads", $("#form-input").serialize()).done((data) => {
+                console.log(data);
+            }).fail((err) => {
+                console.log(err);
+            })
+        }
+        function onDelete(id) {
+            $.ajax({
+                url: "/heads",
+                type: "DELETE",
+                data: { code: id },
+                success: (result) => {
+                    $(`#${id}`).remove();
+                },
+                error: (err) => {
+                    $("#bad-alert").text(xhr.responseText || `An error occured (${xhr.status})`)
+                    $("#bad-alert").fadeIn()
+                }
+            })
+        }
+    </script>
+
+    <div class="container">
+        <a href="/">Go Back</a>
+        </div>
+        <div>
+            <div class="row">
+                <table>
+                    <thead>
+                        <th>Country</th>
+                        <th>Head of State</th>
+                        <td>Menu</td>
+                    </thead>
+                    <tbody>
+                        <% data.forEach(head=> { %>
+                            <tr id="<%= head._id %>">
+                                <td>
+                                    <%= head._id %>
+                                </td>
+                                <td>
+                                    <%= head.headOfState %>
+                                </td>
+                                <td>
+                                    <a class="btn btn-danger" onclick="onDelete('<%= head._id %>')">Delete</a>
+                                </td>
+                            </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row">
+                <form id="form-input" class="form" onsubmit="onSubmit(); return false">
+                    <div class="mb-2 input-group">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text">Country Code</label>
+                        </div>
+                        <select required id="input-head-countrycode" name="_id" class="custom-select">
+                            <% countries.forEach(country=> { %>
+                                <option value="<%= country.co_code %>">
+                                    <%= country.co_name %>
+                                </option>
+                        </select>
+                    </div>
+                    <label class="form-label">Head of State (Name)</label>
+                    <input required class="form-control mb-2" type="text" name="headOfState" />
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
